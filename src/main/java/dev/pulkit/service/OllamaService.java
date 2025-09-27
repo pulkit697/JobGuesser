@@ -4,7 +4,9 @@ import dev.pulkit.config.OllamaConfig;
 import dev.pulkit.config.PromptConfig;
 import dev.pulkit.model.Message;
 import dev.pulkit.model.OllamaRequestBody;
+import dev.pulkit.model.OllamaResponseBody;
 import dev.pulkit.model.enums.Role;
+import dev.pulkit.utils.ParserUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +30,12 @@ public class OllamaService extends BaseRestService {
 
     public String getNextQuestion(List<Message> conversationHistory, String userResponse) {
         String url = config.getHost() + config.getEndpoint();
-        return getResponse(url, getParams(), getHeaders(), getRequestBody(conversationHistory, userResponse), HttpMethod.POST);
+        String response = getResponse(url, getParams(), getHeaders(), getRequestBody(conversationHistory, userResponse), HttpMethod.POST);
+        OllamaResponseBody responseBody = ParserUtils.convertStringToOllamaResponseBody(response);
+        if (responseBody != null) {
+            return responseBody.getMessage().getContent();
+        }
+        return null;
     }
 
     private OllamaRequestBody getRequestBody(List<Message> conversationHistory, String userResponse) {
