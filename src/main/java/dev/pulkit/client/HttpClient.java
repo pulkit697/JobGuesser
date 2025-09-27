@@ -7,6 +7,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,15 +35,17 @@ public class HttpClient {
             os.close();
         }
 
+        // System.out.println("HttpConnection: " + httpURLConnection.getURL() + " " + httpURLConnection.getRequestMethod());
+
         httpURLConnection.connect();
         int responseCode = httpURLConnection.getResponseCode();
-        System.out.println("response code: " + responseCode);
+        // System.out.println("response code: " + responseCode + " " + httpURLConnection.getResponseMessage());
         String response = null;
         if (responseCode<300) {
             InputStream is = httpURLConnection.getInputStream();
             response = new String(is.readAllBytes());
         }
-        System.out.println("Response: " + response);
+        // System.out.println("Response: " + response);
         httpURLConnection.disconnect();
         return response;
     }
@@ -52,12 +55,20 @@ public class HttpClient {
         if (params != null && !params.isEmpty()) {
             url.append("?");
             for (Map.Entry<String, String> param: params.entrySet()) {
-                url.append(param.getKey()).append("=").append(param.getValue()).append("&");
+                url
+                        .append(utf8EncodedUrlString(param.getKey()))
+                        .append("=")
+                        .append(utf8EncodedUrlString(param.getValue()))
+                        .append("&");
             }
         }
         if (url.charAt(url.length()-1) == '&') {
             url.deleteCharAt(url.length()-1);
         }
         return new URL(url.toString());
+    }
+
+    private static String utf8EncodedUrlString(String s) {
+        return URLEncoder.encode(s.trim(), StandardCharsets.UTF_8);
     }
 }
