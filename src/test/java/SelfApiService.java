@@ -13,7 +13,6 @@ public class SelfApiService extends BaseRestService {
     public String getNextQuestion(List<Message> conversationHistory, String userResponse) {
         HashMap<String, String> params = new HashMap<>();
         params.put("userResponse", userResponse);
-        conversationHistory.add(new Message(Role.USER, userResponse));
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
         return getResponse("http://localhost:8080/nextQuestion", params, headers, conversationHistory, HttpMethod.POST);
